@@ -4,9 +4,12 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");  // Import from v2 firestore
 const { FieldValue } = require("firebase-admin/firestore");
 const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey.json");
 
 // Initialize Firebase Admin SDK
-admin.initializeApp();
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 const db = admin.firestore();
 //const FieldValue = admin.firestore.FieldValue;
 
@@ -41,6 +44,7 @@ exports.logArticleLike = onRequest({ cors: true }, async (req, res) => {
       timestamp: FieldValue.serverTimestamp(),
     };
     await db.collection("article_likes").add(likeData);
+    console.log("Article like logged successfully.");
 
     // Send success response
     res.status(200).json({ message: "Article like logged successfully" });
